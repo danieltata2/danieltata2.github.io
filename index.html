@@ -1,23 +1,499 @@
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]>      <html class="no-js"> <!--<![endif]-->
-<html>
-    <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=edge">
-        <title>
-        </title>
-        <meta name="description" content="">
-        <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="">
-    </head>
-    <body>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Daniel Ñuflo | Backend Developer</title>
+  <meta name="description" content="Backend Developer Junior • Java • Spring Boot • PostgreSQL • Docker • APIs escalables"/>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+  <style>
+    :root {
+      --bg: #0a0a0a;
+      --card: rgba(17, 17, 17, 0.7);
+      --text: #e0e0e0;
+      --green: #00ff41;
+      --cyan: #00ffff;
+      --gray: #8892a0;
+      --border: #1a1a1a;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html { scroll-behavior:smooth; }
+    body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; line-height:1.7; overflow-x:hidden; }
+    canvas { position:fixed; top:0; left:0; width:100%; height:100%; z-index:-2; opacity:0.22; pointer-events:none; }
 
-        <h1>HOLA CLASE</h1>
-        <h2>HAY CURSOS AQUI</h2>
+    .scroll-indicator { 
+      position:fixed; top:0; left:0; height:3px; width:100%; z-index:9999;
+      background:linear-gradient(90deg,var(--green),var(--cyan)); 
+      transform:scaleX(0); transform-origin:left; transition:transform 0.4s; 
+    }
+
+    /* NAV */
+    .nav { 
+      position:fixed; top:24px; left:50%; transform:translateX(-50%); 
+      background:rgba(10,10,10,0.85); backdrop-filter:blur(20px);
+      padding:18px 70px; border-radius:80px; border:1px solid rgba(0,255,65,0.3); 
+      box-shadow:0 10px 40px rgba(0,255,65,0.15); z-index:9999; transition:all 0.4s; 
+      width:90vw; max-width:1400px; 
+    }
+    .nav.scrolled { top:16px; padding:14px 60px; }
+    .nav-container { display:flex; justify-content:space-between; align-items:center; max-width:1300px; margin:0 auto; width:100%; }
+    .logo { 
+      font-family:'JetBrains Mono'; font-weight:800; font-size:1.9rem;
+      background:linear-gradient(90deg,var(--green),var(--cyan),var(--green));
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; letter-spacing:1px; 
+    }
+    .nav-links { display:flex; gap:60px; }
+    .nav-links a { 
+      color:var(--gray); text-decoration:none; font-weight:600; font-size:1.1rem; text-transform:uppercase;
+      letter-spacing:1px; position:relative; padding:8px 0; transition:all 0.4s; 
+    }
+    .nav-links a::after { 
+      content:''; position:absolute; bottom:-8px; left:50%; width:0; height:2px;
+      background:var(--green); border-radius:2px; transition:all 0.5s; box-shadow:0 0 10px var(--green); 
+    }
+    .nav-links a:hover, .nav-links a.active { color:var(--green); text-shadow:0 0 15px var(--green); }
+    .nav-links a:hover::after, .nav-links a.active::after { width:100%; left:0; }
+    .hamburger { display:none; color:var(--green); font-size:2rem; cursor:pointer; }
+
+    /* HERO */
+    .hero { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:180px 20px 120px; }
+    .terminal-window { 
+      max-width:1100px; width:100%; background:rgba(12,12,12,0.85); backdrop-filter:blur(30px);
+      border:2px solid var(--green); border-radius:24px; overflow:hidden;
+      box-shadow:0 40px 120px rgba(0,255,65,0.25); 
+    }
+    .terminal-header { background:#000; padding:16px 32px; border-bottom:2px solid var(--green); display:flex; align-items:center; gap:12px; }
+    .dot { width:14px; height:14px; border-radius:50%; }
+    .red { background:#ff5f56; } .yellow { background:#ffbd2e; } .green { background:#27c93f; }
+    .terminal-body { padding:5.5rem 5rem; font-family:'JetBrains Mono',monospace; }
+    .prompt { color:var(--green); font-weight:700; margin:2rem 0 1rem; text-shadow:0 0 10px var(--green); }
+    .prompt::before { content:"root@daniel:~$ "; color:var(--cyan); text-shadow:0 0 10px var(--cyan); }
+    h1 { 
+      font-size:6.8rem; font-weight:900;
+      background:linear-gradient(120deg,var(--green) 0%,var(--cyan) 50%,var(--green) 100%);
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; margin:1rem 0; letter-spacing:-2px; 
+    }
+    .title { font-size:2.4rem; color:var(--cyan); margin:2rem 0 3rem; font-weight:700; text-shadow:0 0 20px var(--cyan); }
+    .typewriter { font-size:1.4rem; line-height:2.2; color:#bbffbb; min-height:160px; }
+    .cursor { display:inline-block; width:12px; height:1.6em; background:var(--green);
+      animation:blink 0.8s infinite; box-shadow:0 0 15px var(--green); margin-left:4px; }
+    @keyframes blink { 0%,50% { opacity:1; } 51%,100% { opacity:0; } }
+    .social-links { display:flex; gap:3rem; justify-content:center; margin:4.5rem 0; }
+    .social-links a { color:var(--green); font-size:2.8rem; transition:all 0.6s; filter:drop-shadow(0 0 10px var(--green)); }
+    .social-links a:hover { color:var(--cyan); transform:translateY(-12px) scale(1.4); filter:drop-shadow(0 0 30px var(--cyan)); }
+    .cv-btn { 
+      display:inline-block; padding:20px 56px; background:transparent; color:var(--green);
+      border:2px solid var(--green); border-radius:60px; font-family:'JetBrains Mono'; font-weight:800;
+      font-size:1.3rem; text-decoration:none; position:relative; overflow:hidden;
+      box-shadow:0 0 30px rgba(0,255,65,0.4); transition:all 0.5s; 
+    }
+    .cv-btn:hover { background:var(--green); color:#000; transform:translateY(-8px); box-shadow:0 0 50px rgba(0,255,65,0.8); }
+
+    section { padding:160px 20px; }
+    .container { max-width:1200px; margin:0 auto; }
+    .section-title { 
+      font-family:'JetBrains Mono'; font-size:5rem; text-align:center; margin-bottom:5rem;
+      font-weight:900; background:linear-gradient(90deg,var(--green),var(--cyan));
+      -webkit-background-clip:text; -webkit-text-fill-color:transparent; position:relative; 
+    }
+    .section-title::after { 
+      content:''; position:absolute; bottom:-20px; left:50%; width:120px; height:4px;
+      background:var(--green); transform:translateX(-50%); border-radius:2px; box-shadow:0 0 20px var(--green); 
+    }
+
+    /* PORTAFOLIO */
+    #portafolio { background:linear-gradient(135deg,rgba(0,255,65,0.05),rgba(0,255,255,0.03)); }
+    .portfolio-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(380px,1fr)); gap:2.5rem; }
+    .project-card { 
+      background:var(--card); backdrop-filter:blur(12px);
+      border:1px solid rgba(0,255,65,0.2); border-radius:20px; overflow:hidden;
+      transition:all 0.6s cubic-bezier(0.23,1,0.32,1); box-shadow:0 10px 30px rgba(0,0,0,0.5); 
+    }
+    .project-card:hover { 
+      transform:translateY(-20px) scale(1.02);
+      border-color:var(--green); box-shadow:0 30px 80px rgba(0,255,65,0.35); 
+    }
+    .project-img { height:240px; background:#111 center/cover no-repeat; position:relative; }
+    .project-img::after { content:''; position:absolute; inset:0; background:linear-gradient(transparent 50%,rgba(0,0,0,0.9)); }
+    .project-body { padding:2.2rem; }
+    .project-title { font-size:1.9rem; color:var(--cyan); margin-bottom:1rem; }
+    .project-desc { font-size:1.05rem; margin-bottom:1.8rem; opacity:0.9; }
+    .project-tech { display:flex; flex-wrap:wrap; gap:0.7rem; margin-bottom:1.8rem; }
+    .tech-tag { 
+      background:rgba(0,255,65,0.15); color:var(--green); padding:0.5rem 1.1rem;
+      border-radius:30px; font-size:0.88rem; font-family:'JetBrains Mono'; font-weight:600; 
+    }
+    .project-links a { color:var(--gray); margin-right:1.8rem; font-size:1.5rem; transition:0.4s; }
+    .project-links a:hover { color:var(--cyan); transform:scale(1.3); }
+
+    /* EDUCACIÓN */
+    #educacion { background:rgba(17,17,17,0.4); }
+    .timeline { position:relative; max-width:1000px; margin:0 auto; }
+    .timeline::after { 
+      content:''; position:absolute; width:5px; background:var(--green);
+      top:0; bottom:0; left:50%; margin-left:-2.5px; box-shadow:0 0 15px var(--green); opacity:0.4; 
+    }
+    .timeline-item { padding:20px 40px; position:relative; width:50%; }
+    .timeline-item::after { 
+      content:''; position:absolute; width:28px; height:28px;
+      background:var(--green); border:4px solid var(--bg); border-radius:50%; top:32px; z-index:1;
+      box-shadow:0 0 20px var(--green); 
+    }
+    .timeline-item:nth-child(odd) { left:0; text-align:right; }
+    .timeline-item:nth-child(even) { left:50%; text-align:left; }
+    .timeline-item:nth-child(odd)::after { right:-14px; }
+    .timeline-item:nth-child(even)::after { left:-14px; }
+    .timeline-content { 
+      background:var(--card); backdrop-filter:blur(10px);
+      border:1px solid rgba(0,255,65,0.2); border-radius:16px; padding:2rem;
+      transition:0.4s; 
+    }
+    .timeline-content:hover { border-color:var(--green); box-shadow:0 0 40px rgba(0,255,65,0.25); }
+    .timeline-content h3 { color:var(--cyan); font-size:1.8rem; margin-bottom:0.6rem; }
+    .date { color:var(--green); font-family:'JetBrains Mono'; font-weight:600; }
+
+    /* SKILLS */
+    #skills { background:rgba(17,17,17,0.6); }
+    .skills-container { display:grid; grid-template-columns:repeat(auto-fit,minmax(480px,1fr)); gap:3rem; }
+    .skill-category { 
+      background:var(--card); border:1px solid rgba(0,255,65,0.15);
+      border-radius:20px; padding:2.8rem; backdrop-filter:blur(10px); 
+    }
+    .skill-category h3 { 
+      font-size:2.1rem; color:var(--cyan); text-align:center;
+      margin-bottom:2.5rem; display:flex; align-items:center; justify-content:center; gap:1rem; 
+    }
+    .skill-item { margin-bottom:1.8rem; }
+    .skill-header { display:flex; justify-content:space-between; margin-bottom:0.8rem; }
+    .skill-name { font-family:'JetBrains Mono'; font-weight:600; }
+    .skill-percent { color:var(--green); font-weight:800; font-family:'JetBrains Mono'; }
+    .skill-bar { height:16px; background:#222; border-radius:8px; overflow:hidden; }
+    .skill-fill { 
+      height:100%; background:linear-gradient(90deg,var(--green),var(--cyan));
+      width:0; border-radius:8px; transition:width 2.8s cubic-bezier(0.65,0,0.35,1);
+      position:relative; overflow:hidden; 
+    }
+    .skill-fill::after { 
+      content:''; position:absolute; inset:0;
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,0.25),transparent);
+      animation:shiny 2.5s infinite; 
+    }
+    @keyframes shiny { 0% { transform:translateX(-100%); } 100% { transform:translateX(100%); } }
+
+    /* CONTACTO - VERSIÓN FINAL ULTRA MEJORADA */
+    #contacto { 
+      background:linear-gradient(135deg,rgba(0,255,65,0.08),rgba(0,255,255,0.05));
+      position:relative; overflow:hidden;
+    }
+    .contact-terminal { 
+      max-width:950px; margin:0 auto; background:rgba(12,12,12,0.92);
+      border:3px solid var(--green); border-radius:28px; overflow:hidden;
+      box-shadow:0 40px 140px rgba(0,255,65,0.3), inset 0 0 60px rgba(0,255,65,0.08);
+      backdrop-filter:blur(20px); position:relative; z-index:1;
+    }
+    .contact-header { 
+      background:#000; padding:1.8rem 3rem; border-bottom:3px solid var(--green);
+      font-family:'JetBrains Mono'; color:var(--cyan); font-weight:700; font-size:1.2rem;
+      text-shadow:0 0 15px var(--cyan);
+    }
+    .contact-body { padding:5rem 4rem; text-align:center; }
+    .contact-body p { 
+      font-size:1.4rem; margin-bottom:3.5rem; color:#ccffcc;
+      text-shadow:0 0 10px rgba(0,255,65,0.4);
+    }
+    .contact-form { 
+      display:grid; gap:2.2rem; max-width:700px; margin:0 auto;
+    }
+    .form-group { position:relative; }
+    .form-group input, .form-group textarea { 
+      width:100%; background:rgba(20,20,20,0.6); border:2px solid rgba(0,255,65,0.4);
+      color:var(--text); padding:1.6rem 2rem; border-radius:16px;
+      font-family:'JetBrains Mono'; font-size:1.1rem; transition:all 0.5s;
+      backdrop-filter:blur(10px);
+    }
+    .form-group input::placeholder, .form-group textarea::placeholder { 
+      color:rgba(255,255,255,0.4); font-style:italic;
+    }
+    .form-group input:focus, .form-group textarea:focus { 
+      outline:none; border-color:var(--cyan); 
+      box-shadow:0 0 35px rgba(0,255,255,0.6); transform:scale(1.02);
+      background:rgba(25,25,25,0.8);
+    }
+    .form-group label { 
+      position:absolute; top:-14px; left:24px; background:var(--bg);
+      padding:0 18px; color:var(--cyan); font-family:'JetBrains Mono';
+      font-size:0.95rem; font-weight:600; pointer-events:none;
+      text-shadow:0 0 10px var(--cyan);
+    }
+    .submit-btn { 
+      margin:2rem auto 0; padding:1.7rem 5rem; background:transparent;
+      border:3px solid var(--green); color:var(--green); font-weight:900;
+      font-family:'JetBrains Mono'; text-transform:uppercase; font-size:1.35rem;
+      border-radius:80px; cursor:pointer; transition:all 0.6s;
+      position:relative; overflow:hidden; box-shadow:0 0 40px rgba(0,255,65,0.4);
+    }
+    .submit-btn:hover { 
+      background:var(--green); color:#000; transform:translateY(-8px) scale(1.05);
+      box-shadow:0 0 80px rgba(0,255,65,0.9);
+    }
+    .submit-btn::before { 
+      content:''; position:absolute; top:50%; left:50%; width:0; height:0;
+      background:rgba(0,255,65,0.4); border-radius:50%;
+      transform:translate(-50%,-50%); transition:all 0.6s;
+    }
+    .submit-btn:active::before { width:400px; height:400px; opacity:0; }
+    .copy-email { 
+      margin-top:3rem; padding:1.3rem 2.5rem; background:rgba(0,255,65,0.1);
+      border:2px dashed var(--green); border-radius:20px; cursor:pointer;
+      color:var(--cyan); font-family:'JetBrains Mono'; font-weight:700; font-size:1.1rem;
+      transition:all 0.5s; display:inline-block;
+    }
+    .copy-email:hover { 
+      background:rgba(0,255,65,0.25); border-color:var(--cyan);
+      transform:scale(1.08); box-shadow:0 0 40px rgba(0,255,65,0.5);
+    }
+
+    .reveal { opacity:0; transform:translateY(60px); transition:all 1.4s ease; }
+    .reveal.active { opacity:1; transform:translateY(0); }
+
+    @media (max-width:1000px) {
+      .nav { padding:16px 40px; width:94vw; }
+      .hamburger { display:block; }
+      .nav-links { 
+        position:fixed; top:90px; left:50%; transform:translateX(-50%);
+        flex-direction:column; background:rgba(10,10,10,0.98); padding:3rem; border-radius:30px;
+        border:2px solid var(--green); display:none; gap:2rem; box-shadow:0 30px 80px rgba(0,255,65,0.5); 
+      }
+      .nav-links.active { display:flex; }
+      h1 { font-size:5rem; }
+      .terminal-body, .contact-body { padding:3.5rem 2rem; }
+      .portfolio-grid, .skills-container { grid-template-columns:1fr; }
+      .timeline::after { left:40px; }
+      .timeline-item { width:100%; padding-left:80px; text-align:left !important; left:0 !important; }
+      .timeline-item::after { left:26px !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="scroll-indicator"></div>
+  <canvas id="matrix-bg"></canvas>
+
+  <!-- NAVEGACION -->
+  <nav class="nav" id="nav">
+    <div class="nav-container">
+      <a href="#" class="logo">&lt;Daniel_Ñuflo/&gt;</a>
+      <div class="hamburger" onclick="document.querySelector('.nav-links').classList.toggle('active')">
+        <i class="fas fa-terminal"></i>
+      </div>
+      <div class="nav-links">
+        <a href="#sobre-mi" class="active">Inicio</a>
+        <a href="#portafolio">Proyectos</a>
+        <a href="#educacion">Educación</a>
+        <a href="#skills">Skills</a>
+        <a href="#contacto">Contacto</a>
+      </div>
+    </div>
+  </nav>
+
+
+  <section id="sobre-mi" class="hero">
+    <div class="terminal-window reveal">
+      <div class="terminal-header">
+        <span class="dot red"></span><span class="dot yellow"></span><span class="dot green"></span>
+      </div>
+      <div class="terminal-body">
+        <p class="prompt">$ whoami</p>
+        <h1>Daniel Ñuflo</h1>
+        <p class="title">Backend Developer Junior</p>
+        <p class="prompt">$ cat about.txt</p>
+        <p class="typewriter" id="typewriter"></p>
+        <span class="cursor"></span>
+
+        <div class="social-links">
+          <a href="https://github.com/danieltata2" target="_blank"><i class="fab fa-github"></i></a>
+          <a href="https://linkedin.com/in/daniel-nuflo" target="_blank"><i class="fab fa-linkedin-in"></i></a>
+          <a href="mailto:daniel.nubera@gmail.com"><i class="fas fa-envelope"></i></a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PORTAFOLIO -->
+  <section id="portafolio" class="reveal">
+    <div class="container">
+      <h2 class="section-title">Proyectos</h2>
+      <div class="portfolio-grid">
+        <div class="project-card">
+          <div class="project-img" style="background-image:url('https://simzine.news/wp-content/uploads/2025/03/figueroa3-scaled.jpg')"></div>
+          <div class="project-body">
+            <h3 class="project-title">Sistema de Gestión Clínica Veterinaria</h3>
+            <p class="project-desc">  Desarrollo de una aplicación web para la gestión integral de pacientes, citas y veterinarios. 
+        Incluye diseño de base de datos, programación backend con Java, implementación completa de CRUD, 
+        generación de reportes automáticos y búsquedas avanzadas con JasperReports, además de pruebas funcionales y optimización de consultas SQL. </p>
+            <div class="project-tech">
+              <span class="tech-tag">Java</span>
+              <span class="tech-tag">JWT</span>
+              <span class="tech-tag">PostgreSQL</span>
+            </div>
+            <div class="project-links">
+              <a href="https://github.com/danieltata2/finalProject_1DAM" target="_blank"><i class="fab fa-github"></i></a>
+              <a href="https://github.com/danieltata2/finalProject_1DAM" target="_blank"><i class="fas fa-external-link-alt"></i></a>
+            </div>
+          </div>
+        </div>
+        <!--MAS PROYECTOS-->
+      </div>
+    </div>
+  </section>
+
+  <!-- EDUCACIÓN -->
+  <section id="educacion" class="reveal">
+    <div class="container">
+      <h2 class="section-title">Educación</h2>
+      <div class="timeline">
+        <div class="timeline-item">
+          <div class="timeline-content">
+            <h3>Desarrollo de Aplicaciones Multiplataforma (DAM)</h3>
+            <p class="date">2024 – 2026 | IES Alonso de Ercilla </p>
+            <p>Grado superior con especialización en backend Java, bases de datos, cloud y metodologías ágiles.</p>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-content">
+            <h3>Bachillerato Tecnológico</h3>
+            <p class="date">2022 – 2024 | IES Miguel Hernandez </p>
+            <p>Especialidad en ciencias tecnológicas y matemáticas aplicadas.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills" class="reveal">
+    <div class="container">
+      <h2 class="section-title">Skills & Tecnologías</h2>
+      <div class="skills-container">
+        <div class="skill-category">
+          <h3>Lenguajes</h3>
+          <div class="skill-item"><div class="skill-header"><span class="skill-name">Java</span><span class="skill-percent">95%</span></div><div class="skill-bar"><div class="skill-fill" data-percent="95"></div></div></div>
+          <div class="skill-item"><div class="skill-header"><span class="skill-name">HTML</span><span class="skill-percent">95%</span></div><div class="skill-bar"><div class="skill-fill" data-percent="95"></div></div></div>
+          <div class="skill-item"><div class="skill-header"><span class="skill-name">CSS</span><span class="skill-percent">95%</span></div><div class="skill-bar"><div class="skill-fill" data-percent="95"></div></div></div>
+          <div class="skill-item"><div class="skill-header"><span class="skill-name">C</span><span class="skill-percent">80%</span></div><div class="skill-bar"><div class="skill-fill" data-percent="80"></div></div></div>
+        </div>
+        <div class="skill-category">
+          <h3>Herramientas & DB</h3>
+          <div class="skill-item"><div class="skill-header"><span class="skill-name">PostgreSQL / MySQL / SQLite</span><span class="skill-percent">95%</span></div><div class="skill-bar"><div class="skill-fill" data-percent="95"></div></div></div>
+          <div class="skill-item"><div class="skill-header"><span class="skill-name">Docker / Portainer</span><span class="skill-percent">80%</span></div><div class="skill-bar"><div class="skill-fill" data-percent="80"></div></div></div>
+          <div class="skill-item"><div class="skill-header"><span class="skill-name">Android Studio</span><span class="skill-percent">95%</span></div><div class="skill-bar"><div class="skill-fill" data-percent="95"></div></div></div>
+          <div class="skill-item"><div class="skill-header"><span class="skill-name">Eclipse</span><span class="skill-percent">90%</span></div><div class="skill-bar"><div class="skill-fill" data-percent="90"></div></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACTO FINAL -->
+  <section id="contacto" class="reveal">
+    <div class="container">
+      <h2 class="section-title">Contacto</h2>
+      <div class="contact-terminal">
+        <div class="contact-header">root@daniel:~$ nano contacto.txt</div>
+        <div class="contact-body">
+         
+          <form class="contact-form" action="https://formspree.io/f/xanywjva" method="POST">
+            <div class="form-group">
+            
+              <input type="text" name="name" required placeholder="Tu nombre completo">
+            </div>
+            <div class="form-group">
         
-        <script src="" async defer></script>
-    </body>
+              <input type="email" name="_replyto" required placeholder="tu@email.com">
+            </div>
+            <div class="form-group">
+           
+              <textarea name="message" rows="7" required placeholder="Hola Daniel, me gustaría hablar contigo sobre..."></textarea>
+            </div>
+            <button type="submit" class="submit-btn">Enviar Mensaje</button>
+          </form>
+
+          <div class="copy-email" onclick="navigator.clipboard.writeText('daniel.nubera@gmail.com'); this.innerHTML='Email copiado al portapapeles'">
+            O copia directo: daniel.nubera@gmail.com
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+    
+      const text = "Desarrollo aplicaciones backend robustas con Java y SQL.\nMe apasiona crear APIs escalables, seguras y mantenibles.\nActualmente cursando DAM y construyendo proyectos reales con Portainer, PostgreSQL y JAVA.";
+      let i = 0;
+      const el = document.getElementById("typewriter");
+      function type() { 
+        if (i < text.length) { 
+          el.innerHTML += text[i] === "\n" ? "<br>" : text[i]; 
+          i++; 
+          setTimeout(type, 45); 
+        } 
+      }
+      setTimeout(type, 1200);
+
+      window.addEventListener('scroll', () => {
+        const scrolled = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+        document.querySelector('.scroll-indicator').style.transform = `scaleX(${scrolled/100})`;
+      });
+
+      window.addEventListener("scroll", () => {
+        document.querySelector(".nav").classList.toggle("scrolled", scrollY > 80);
+        let current = "";
+        document.querySelectorAll("section[id]").forEach(s => { 
+          if (scrollY >= s.offsetTop - 250) current = s.id; 
+        });
+        document.querySelectorAll(".nav-links a").forEach(a => { 
+          a.classList.toggle("active", a.getAttribute("href") === "#"+current); 
+        });
+      });
+
+      const observer = new IntersectionObserver(entries => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('active');
+            entry.target.querySelectorAll('.skill-fill').forEach(bar => {
+              bar.style.width = bar.dataset.percent + "%";
+            });
+          }
+        });
+      }, { threshold: 0.15 });
+      document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+      const canvas = document.getElementById("matrix-bg");
+      const ctx = canvas.getContext("2d");
+      canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+      const chars = "01アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン";
+      const fontSize = 15;
+      const columns = canvas.width / fontSize;
+      const drops = Array(Math.floor(columns)).fill(1);
+      function draw() {
+        ctx.fillStyle = "rgba(10,10,10,0.05)";
+        ctx.fillRect(0,0,canvas.width,canvas.height);
+        ctx.fillStyle = "#00ff41";
+        ctx.font = fontSize + "px 'JetBrains Mono'";
+        for (let i = 0; i < drops.length; i++) {
+          const char = chars[Math.floor(Math.random() * chars.length)];
+          ctx.fillText(char, i * fontSize, drops[i] * fontSize);
+          if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) drops[i] = 0;
+          drops[i]++;
+        }
+      }
+      setInterval(draw, 33);
+      window.addEventListener('resize', () => {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+      });
+    });
+  </script>
+</body>
 </html>
